@@ -3,36 +3,24 @@ from constants import *
 from player import Player
 from asteroids import Asteroid
 from asteroidfield import AsteroidField
+from shot import Shot
 
-def main():
-    # initiating the game
-    pygame.init()
-    
-    # creating the screen 
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    
-    # setting the variables to limit the fps
-    fps = pygame.time.Clock()
-    dt = 0
-    
+def grouping():
     # initiating the groups
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
+    shots = pygame.sprite.Group()
     
     #adding objects to the groups
     Player.containers = (updatable, drawable)
     Asteroid.containers = (asteroids, updatable, drawable)
     AsteroidField.containers = (updatable)
+    Shot.containers = (shots, updatable, drawable)
     
-    # instantiating the player:
-    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-    
-    # Initialization from asteroid field
-    asteroid_field = AsteroidField()
-    
-    print(asteroid_field)
-    
+    return updatable, drawable, asteroids, shots
+
+def game_loop(screen: object, updatable, drawable, asteroids, shots, player: object, dt: float, fps: object) -> None:
     # while playing the game
     while True:
         
@@ -63,6 +51,28 @@ def main():
         
         #limiting the fps to 60
         dt = fps.tick(60)/1000
+
+def main():
+    # initiating the game
+    pygame.init()
+    
+    # creating the screen 
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    
+    # setting the variables to limit the fps
+    fps = pygame.time.Clock()
+    dt = 0
+    
+    updatable, drawable, asteroids, shots = grouping()
+    
+    # instantiating the player:
+    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+    
+    # initialization from asteroid field
+    asteroid_field = AsteroidField()
+    
+    game_loop(screen, updatable, drawable, asteroids, shots, player, dt, fps)
+    
         
     
 if __name__ == "__main__":
