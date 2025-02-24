@@ -74,7 +74,11 @@ class GameScreens:
         spacing = 80  # Vertical space between options
 
         # Button dimensions
-        button_width = 300
+        if title == "PAUSED":
+            button_width = 350
+        else:
+            button_width = 300
+            
         button_height = 60
         button_alpha = 128  # Transparency (0 is fully transparent, 255 is solid)
     

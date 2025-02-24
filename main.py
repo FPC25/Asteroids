@@ -224,18 +224,22 @@ def main():
         game_screens = GameScreens(screen)
         current_state = GameState.MENU
         
+        updatable, drawable, asteroids, shots, player = None, None, None, None, None
+        
         while current_state is not None:
             if current_state == GameState.MENU:
                 current_state = game_screens.draw_menu(fps, 60)
+                
+                if current_state == GameState.PLAYING:
+                    updatable, drawable, asteroids, shots = grouping()
+                    
+                    # instantiating the player:
+                    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+                    
+                    # initialization from asteroid field
+                    asteroid_field = AsteroidField()
             
             elif current_state == GameState.PLAYING:
-                updatable, drawable, asteroids, shots = grouping()
-                
-                # instantiating the player:
-                player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-                
-                # initialization from asteroid field
-                asteroid_field = AsteroidField()
                 game_state = game_loop(screen, updatable, drawable, asteroids, shots, player, dt, fps)
                 
                 if game_state == GameState.PAUSED:
@@ -251,10 +255,13 @@ def main():
                 
             elif current_state == GameState.PAUSED: 
                 current_state = game_screens.draw_pause_menu(fps, 60)
-            
+                if current_state == GameState.PLAYING:
+                    continue
+                
             elif current_state == GameState.END_GAME:
                 current_state = GameState.MENU
-        
+                updatable, drawable, asteroids, shots, player = None, None, None, None, None
+                
     except (pygame.error, SystemError) as e:
         print(f"Failed to start game: {e}")
 
