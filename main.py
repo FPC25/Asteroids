@@ -219,23 +219,38 @@ def main():
         fps = pygame.time.Clock()
         dt = 0
         
-        updatable, drawable, asteroids, shots = grouping()
+        game_screens = GameScreens(screen)
+        current_state = GameState.MENU
         
-        # instantiating the player:
-        player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-        
-        # initialization from asteroid field
-        asteroid_field = AsteroidField()
+        while current_state is not None:
+            if current_state == GameState.MENU:
+                current_state = game_screens.draw_menu(fps, 60)
+            
+            elif current_state == GameState.PLAYING:
+                updatable, drawable, asteroids, shots = grouping()
+                
+                # instantiating the player:
+                player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+                
+                # initialization from asteroid field
+                asteroid_field = AsteroidField()
+                end_status = game_loop(screen, updatable, drawable, asteroids, shots, player, dt, fps)
+                if end_status == 1:
+                    print("Game Over!")
+                    current_state = GameState.MENU
+            
+            elif current_state == GameState.SCOREBOARD:
+                current_state = game_screens.draw_scoreboard()
+                
+            elif current_state == GameState.PAUSED: 
+                pass
+            
+            elif current_state == GameState.END_GAME:
+                current_state = GameState.MENU
         
     except (pygame.error, SystemError) as e:
         print(f"Failed to start game: {e}")
-        pygame.quit()
-        return
-    
-    try:
-        end_status = game_loop(screen, updatable, drawable, asteroids, shots, player, dt, fps)
-        if end_status == 1:
-            print("Game Over!")
+
     finally:
         pygame.quit()
     

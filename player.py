@@ -1,8 +1,9 @@
 import pygame
 
 from shot import Shot
-from circleshape import CircleShape
 from constants import *
+from circleshape import CircleShape
+from gamestates import GameState, GameScreens
 
 
 class Player(CircleShape):
@@ -11,6 +12,7 @@ class Player(CircleShape):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
         self.timer = 0
+        self.lives = PLAYER_NUM_LIVES
         
     # in the player class
     def triangle(self) -> list:
@@ -33,7 +35,7 @@ class Player(CircleShape):
         
     def update(self, dt):
         keys = pygame.key.get_pressed()
-
+        
         if self.timer > 0:
             self.timer -= dt
         
@@ -52,12 +54,27 @@ class Player(CircleShape):
         if keys[pygame.K_SPACE]:
             if self.timer <= 0:
                 self.shoot()
-            
+                
+        if keys[pygame.K_ESCAPE]:
+            #pause
+            pass
+                
+        self.wrap_position()
+    
+    def wrap_position(self):
+        if self.position.x > SCREEN_WIDTH:
+            self.position.x = 0
+        elif self.position.x < 0:
+            self.position.x = SCREEN_WIDTH
+        if self.position.y > SCREEN_HEIGHT:
+            self.position.y = 0
+        elif self.position.y < 0:
+            self.position.y = SCREEN_HEIGHT    
             
     def shoot(self):
         bullet = Shot(self.position.x, self.position.y)
         bullet.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
-        self.timer = PLAYER_SHOOT_COLDDOWN
+        self.timer = PLAYER_SHOOT_COOLDOWN
 
         
         
