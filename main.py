@@ -99,7 +99,7 @@ def updating_group(group_name: str, group: Group, *args) -> None:
         else:
             raise ValueError(f"{group_name} groups is not supported.")
             
-def asteroid_collisions(asteroid_group: Group, shots_group: Group, player: Player) -> None:
+def asteroid_collisions(asteroid_group: Group, shots_group: Group, player: Player) -> GameState:
     """
     Checks for:
         - Player collision with any asteroid (game over)
@@ -111,19 +111,37 @@ def asteroid_collisions(asteroid_group: Group, shots_group: Group, player: Playe
         player: The player's ship object
     
     Returns:
-        bool: True if player collided (game over), False if game continues
+        GameState: END_GAME if no lives left, PLAYING otherwise
     """
     
     for asteroid in asteroid_group:
         if asteroid.collision(player):
-            return True
+            player.lives -= 1
+            if player.lives <= 0:
+                return GameState.END_GAME
+            
+            player.reset_position()
+            
+            return GameState.PLAYING
         
         for bullet in shots_group:
             if asteroid.collision(bullet):
                 bullet.kill()
                 asteroid.split()
+                player.score += 100
         
-    return False
+    return GameState.PLAYING
+
+def draw_hud(game_font, screen, player):
+    """
+    Draws the heads-up display (score and lives)
+    """
+         
+    score_text = game_font.render(f"Score: {player.score}", True, (255, 255, 255))
+    lives_text = game_font.render(f"Lives: {player.lives}", True, (255, 255, 255))
+    
+    screen.blit(score_text, (10, 10))
+    screen.blit(lives_text, (10, 50))
 
 def game_loop(
     screen: pygame.Surface, 
@@ -160,7 +178,7 @@ def game_loop(
             0: Normal exit (player closed window)
             1: Game over (player crashed into asteroid)
     """
-    
+        
     # while playing the game
     while True:
         
@@ -176,7 +194,7 @@ def game_loop(
             return GameState.PAUSED
         
         #checking for collisions with asteroids
-        if asteroid_collisions(asteroids, shots, player):
+        if asteroid_collisions(asteroids, shots, player) == GameState.END_GAME:
             return GameState.END_GAME
                
         # filling the screen with a back color  
@@ -184,6 +202,8 @@ def game_loop(
         
         #for all object to be draw, do it
         updating_group("drawable", drawable, screen)
+        
+        draw_hud(pygame.font.Font(None, 32), screen, player)
     
         # making sure to refresh the screen
         pygame.display.flip()

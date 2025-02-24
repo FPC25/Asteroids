@@ -12,6 +12,7 @@ class Player(CircleShape):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
         self.timer = 0
+        self.score = 0
         self.lives = PLAYER_NUM_LIVES
         
     # in the player class
@@ -23,6 +24,10 @@ class Player(CircleShape):
         c = self.position - forward * self.radius + right
         return [a, b, c] 
     
+    def reset_position(self):
+        super().__init__(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, PLAYER_RADIUS)
+        self.rotation = 0
+        
     def draw(self, screen: object):
         pygame.draw.polygon(screen, "white", self.triangle(), 2)
         

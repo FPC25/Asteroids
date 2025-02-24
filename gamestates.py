@@ -18,7 +18,8 @@ class GameScreens:
         self.background = pygame.image.load("./background.jpeg")
         self.selected_option = 0
         self.menu_options = ["Start Game", "Score Board", "Exit"]
-
+        self.game_font = pygame.font.Font(None, 32)
+        
     def _draw_menu_screen(self, title: str, options: list, fps, rate) -> GameState:
         self.selected_option = 0
         
@@ -122,7 +123,6 @@ class GameScreens:
             elif self.selected_option == 2:
                 return None
    
-   
     def draw_menu(self, fps, rate):
         return self._draw_menu_screen("ASTEROIDS", ["Start Game", "Score Board", "Exit"], fps, rate)
 
@@ -137,3 +137,4 @@ class GameScreens:
         self.screen.blit(overlay, (0,0))
         
         return self._draw_menu_screen("PAUSED", ["Continue", "Return to Menu", "Exit"], fps, rate)
+        
