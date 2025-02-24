@@ -58,10 +58,6 @@ def grouping() -> tuple[Group, Group, Group, Group]:
     
     return updatable, drawable, asteroids, shots
 
-
-def menu_screen():
-    pass
-
 def updating_group(group_name: str, group: Group, *args) -> None:
     """Updates or draws all sprites in a sprite group.
     
@@ -90,7 +86,12 @@ def updating_group(group_name: str, group: Group, *args) -> None:
     
     for spr in group:
         if group_name == "updatable":
-            spr.update(args[0])
+            if isinstance(spr, Player):
+                if spr.update(args[0]) == GameState.PAUSED:
+                    return GameState.PAUSED
+                
+            else:
+                spr.update(args[0])
             
         elif group_name == "drawable":
             spr.draw(args[0])
@@ -123,7 +124,6 @@ def asteroid_collisions(asteroid_group: Group, shots_group: Group, player: Playe
                 asteroid.split()
         
     return False
-
 
 def game_loop(
     screen: pygame.Surface, 
@@ -164,15 +164,20 @@ def game_loop(
     # while playing the game
     while True:
         
+        #limiting the fps to 60
+        dt = fps.tick(60)/1000
+        
         if check_quit_event():
             return 0
             
         #for all objects on the updatable group, update it
-        updating_group("updatable", updatable, dt)
-
+        game_state = updating_group("updatable", updatable, dt)
+        if game_state == GameState.PAUSED:
+            return GameState.PAUSED
+        
         #checking for collisions with asteroids
         if asteroid_collisions(asteroids, shots, player):
-            return 1
+            return GameState.END_GAME
                
         # filling the screen with a back color  
         screen.fill("#000000")
@@ -183,9 +188,6 @@ def game_loop(
         # making sure to refresh the screen
         pygame.display.flip()
         
-        #limiting the fps to 60
-        dt = fps.tick(60)/1000
-
 def main():
     """Initializes and starts the game.
     
@@ -234,16 +236,21 @@ def main():
                 
                 # initialization from asteroid field
                 asteroid_field = AsteroidField()
-                end_status = game_loop(screen, updatable, drawable, asteroids, shots, player, dt, fps)
-                if end_status == 1:
+                game_state = game_loop(screen, updatable, drawable, asteroids, shots, player, dt, fps)
+                
+                if game_state == GameState.PAUSED:
+                    current_state = game_state
+                elif game_state == GameState.END_GAME:
                     print("Game Over!")
                     current_state = GameState.MENU
+                elif game_state == 0:
+                    current_state = None
             
             elif current_state == GameState.SCOREBOARD:
                 current_state = game_screens.draw_scoreboard()
                 
             elif current_state == GameState.PAUSED: 
-                pass
+                current_state = game_screens.draw_pause_menu(fps, 60)
             
             elif current_state == GameState.END_GAME:
                 current_state = GameState.MENU

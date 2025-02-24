@@ -56,8 +56,7 @@ class Player(CircleShape):
                 self.shoot()
                 
         if keys[pygame.K_ESCAPE]:
-            #pause
-            pass
+            return GameState.PAUSED
                 
         self.wrap_position()
     
