@@ -34,6 +34,9 @@ class Player(CircleShape):
     def update(self, dt):
         keys = pygame.key.get_pressed()
 
+        if self.timer > 0:
+            self.timer -= dt
+        
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             self.rotate(-dt)
             
@@ -47,9 +50,9 @@ class Player(CircleShape):
             self.move(-dt)
             
         if keys[pygame.K_SPACE]:
-            if self.timer == 0:
+            if self.timer <= 0:
                 self.shoot()
-                self.timer = 0
+            
             
     def shoot(self):
         bullet = Shot(self.position.x, self.position.y)

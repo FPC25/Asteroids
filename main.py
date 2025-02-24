@@ -38,6 +38,11 @@ def game_loop(screen: object, updatable, drawable, asteroids, shots, player: obj
             if asteroid.collision(player):
                 print("Game over!")
                 exit()
+            
+            for bullet in shots:
+                if asteroid.collision(bullet):
+                    bullet.kill()
+                    asteroid.kill()
                 
         # filling the screen with a back color  
         screen.fill("#000000")
